@@ -45,64 +45,6 @@ exports.createTables = async function () {
   `);
 };
 
-exports.insertDataOld = async function ({
-	topicData,
-	userData,
-	articleData,
-	commentData
-}) {
-	let sql = format(
-		`
-  INSERT INTO topics (slug, description)
-  VALUES %L;
-  `,
-		topicData.map((topic) => [topic.slug, topic.description])
-	);
-	await database.query(sql);
-
-	sql = format(
-		`
-  INSERT INTO users (username, avatar_url, name)
-  VALUES %L;
-  `,
-		userData.map((user) => [user.username, user.avatar_url, user.name])
-	);
-	await database.query(sql);
-
-	sql = format(
-		`
-  INSERT INTO articles
-  (title, topic, author, body, created_at, votes)
-  VALUES %L;
-  `,
-		articleData.map((article) => [
-			article.title,
-			article.topic,
-			article.author,
-			article.body,
-			article.created_at,
-			article.votes
-		])
-	);
-	await database.query(sql);
-
-	sql = format(
-		`
-  INSERT INTO comments
-  (body, votes, author, article_id, created_at)
-  VALUES %L;
-  `,
-		commentData.map((comment) => [
-			comment.body,
-			comment.votes,
-			comment.author,
-			comment.article_id,
-			comment.created_at
-		])
-	);
-	await database.query(sql);
-};
-
 exports.insertData = async function (data, tableName) {
 	// get fields
 	const fields = Object.keys(data[0]).sort();

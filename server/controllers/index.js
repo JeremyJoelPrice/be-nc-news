@@ -4,5 +4,6 @@ exports.getApiWelcomeMessage = getApiWelcomeMessage;
 const { getTopics } = require("./topics.controller.js");
 exports.getTopics = getTopics;
 
-const { getArticleById } = require("./articles.controller");
+const { getArticleById, patchArticleById } = require("./articles.controller");
 exports.getArticleById = getArticleById;
+exports.patchArticleById = patchArticleById;

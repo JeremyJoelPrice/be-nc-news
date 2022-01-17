@@ -65,4 +65,26 @@ describe("/api/articles/:article_id", () => {
 			expect(response.body.message).toBe("Invalid input");
 		});
 	});
+	describe("PATCH", () => {
+		test.only("200 status and returns the patched article obejct", async () => {
+			const newVotes = {
+				inc_votes: 5
+			};
+			const response = await supertest(app)
+				.patch("/api/articles/1")
+				.send(newVotes);
+			expect(response.status).toBe(200);
+			expect(response.body).toEqual(
+				expect.objectContaining({
+                    article_id: 1,
+					title: "Living in the shadow of a great man",
+					topic: "mitch",
+					author: "butter_bridge",
+					body: "I find this existence challenging",
+					created_at: "2020-07-09T21:11:00.000Z",
+					votes: 105
+				})
+			);
+		});
+	});
 });

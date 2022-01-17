@@ -23,3 +23,16 @@ exports.readArticleById = async (article_id) => {
 	article.comment_count = commentsResponse.rows.length;
 	return article;
 };
+
+exports.updateArticleById = async (article_id, { inc_votes }) => {
+	const response = await database.query(
+		`
+	UPDATE articles
+	SET votes = votes + $1
+	WHERE article_id = $2
+	RETURNING *;
+	`,
+		[inc_votes, article_id]
+	);
+	return response.rows[0];
+};
