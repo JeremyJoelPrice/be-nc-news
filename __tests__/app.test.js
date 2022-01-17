@@ -1,6 +1,6 @@
-const db = require("../db/connection.js");
-const testData = require("../db/data/test-data/index.js");
-const seed = require("../db/seeds/seed.js");
+const db = require("../database/connection.js");
+const testData = require("../database/data/test-data/index.js");
+const seed = require("../database/seeds/seed.js");
 const app = require("../server/app.js");
 const supertest = require("supertest");
 
@@ -38,10 +38,9 @@ describe("/api/topics", () => {
 
 describe("/api/articles/:article_id", () => {
 	describe("GET", () => {
-		test.only("200 status and returns the specified article object", async () => {
+		test("200 status and returns the specified article object", async () => {
 			const response = await supertest(app).get("/api/articles/1");
 			expect(response.status).toBe(200);
-			console.log(response.body);
 			expect(response.body).toEqual(
 				expect.objectContaining({
 					article_id: 1,

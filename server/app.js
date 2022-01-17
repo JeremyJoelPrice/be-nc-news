@@ -2,7 +2,7 @@ const {
 	getApiWelcomeMessage,
 	getTopics,
 	getArticleById
-} = require("./controller.js");
+} = require("./controllers/index.js");
 const {
 	handleCustomErrors,
 	handlePsqlErrors,
