@@ -38,19 +38,20 @@ describe("/api/topics", () => {
 
 describe("/api/articles/:article_id", () => {
 	describe("GET", () => {
-		test("200 status and returns the specified article object", async () => {
+		test.only("200 status and returns the specified article object", async () => {
 			const response = await supertest(app).get("/api/articles/1");
 			expect(response.status).toBe(200);
+			console.log(response.body);
 			expect(response.body).toEqual(
 				expect.objectContaining({
-					author: expect.any(String),
-					title: expect.any(String),
-					article_id: expect.any(Number),
-					body: expect.any(String),
-					topic: expect.any(String),
-					created_at: expect.any(String),
-					votes: expect.any(Number),
-					comment_count: expect.any(Number)
+					article_id: 1,
+					title: "Living in the shadow of a great man",
+					body: "I find this existence challenging",
+					votes: 100,
+					topic: "mitch",
+					author: "butter_bridge",
+					created_at: "2020-07-09T21:11:00.000Z",
+					comment_count: 11
 				})
 			);
 		});
@@ -59,7 +60,7 @@ describe("/api/articles/:article_id", () => {
 			expect(response.status).toBe(404);
 			expect(response.body.message).toBe("Article not found");
 		});
-		test.only("if given an invalid article_id, 400 status and returns 'Invalid input' message", async () => {
+		test("if given an invalid article_id, 400 status and returns 'Invalid input' message", async () => {
 			const response = await supertest(app).get("/api/articles/banana");
 			expect(response.status).toBe(400);
 			expect(response.body.message).toBe("Invalid input");
