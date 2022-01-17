@@ -16,3 +16,24 @@ describe("/api", () => {
         })
 	});
 });
+
+describe.only("/api/topics", () => {
+    describe("GET", () => {
+        test("200 status and returns array of topics", async () => {
+            const response = await supertest(app).get("/api/topics");
+            expect(response.status).toBe(200);
+            const topics = response.body;
+            expect(Array.isArray(topics)).toBe(true);
+            topics.forEach((topic) => {
+                expect( topic ).toEqual(
+                    expect.objectContaining(
+                        {
+                            slug: expect.any(String),
+                            description: expect.any(String)
+                        }
+                    )
+                );
+            });
+        });
+    })
+});
