@@ -1,6 +1,6 @@
-const db = require("../db/connection.js");
-const testData = require("../db/data/test-data/index.js");
-const seed = require("../db/seeds/seed.js");
+const db = require("../database/connection.js");
+const testData = require("../database/data/test-data/index.js");
+const seed = require("../database/seeds/seed.js");
 const app = require("../server/app.js");
 const supertest = require("supertest");
 
@@ -43,22 +43,26 @@ describe("/api/articles/:article_id", () => {
 			expect(response.status).toBe(200);
 			expect(response.body).toEqual(
 				expect.objectContaining({
-					author: expect.any(String),
-					title: expect.any(String),
-					article_id: expect.any(Number),
-					body: expect.any(String),
-					topic: expect.any(String),
-					created_at: expect.any(String),
-					votes: expect.any(Number),
-					comment_count: expect.any(Number)
+					article_id: 1,
+					title: "Living in the shadow of a great man",
+					body: "I find this existence challenging",
+					votes: 100,
+					topic: "mitch",
+					author: "butter_bridge",
+					created_at: "2020-07-09T21:11:00.000Z",
+					comment_count: 11
 				})
 			);
 		});
-		test.only("if given an unused valid article_id, 404 status and returns 'Article not found' message", async () => {
+		test("if given an unused valid article_id, 404 status and returns 'Article not found' message", async () => {
 			const response = await supertest(app).get("/api/articles/99999");
 			expect(response.status).toBe(404);
-            console.log(response.body);
 			expect(response.body.message).toBe("Article not found");
+		});
+		test("if given an invalid article_id, 400 status and returns 'Invalid input' message", async () => {
+			const response = await supertest(app).get("/api/articles/banana");
+			expect(response.status).toBe(400);
+			expect(response.body.message).toBe("Invalid input");
 		});
 	});
 });

@@ -1,25 +1,14 @@
-const database = require("../connection.js");
+const database = require("./connection.js");
 const format = require("pg-format");
 
-const seed = async (data) => {
-	try {
-		await dropTables();
-		await createTables();
-		await insertData(data);
-    console.log("Database seeded");
-	} catch (error) {
-		console.log(error);
-	}
-};
-
-async function dropTables() {
+exports.dropTables = async function () {
 	await database.query(`DROP TABLE IF EXISTS comments;`);
 	await database.query(`DROP TABLE IF EXISTS articles;`);
 	await database.query(`DROP TABLE IF EXISTS topics;`);
 	await database.query(`DROP TABLE IF EXISTS users;`);
-}
+};
 
-async function createTables() {
+exports.createTables = async function () {
 	await database.query(`
   CREATE TABLE topics (
     slug TEXT PRIMARY KEY,
@@ -54,9 +43,14 @@ async function createTables() {
     body TEXT NOT NULL
   );
   `);
-}
+};
 
-async function insertData({ topicData, userData, articleData, commentData }) {
+exports.insertDataOld = async function ({
+	topicData,
+	userData,
+	articleData,
+	commentData
+}) {
 	let sql = format(
 		`
   INSERT INTO topics (slug, description)
@@ -90,7 +84,7 @@ async function insertData({ topicData, userData, articleData, commentData }) {
 			article.votes
 		])
 	);
-  await database.query(sql);
+	await database.query(sql);
 
 	sql = format(
 		`
@@ -106,7 +100,27 @@ async function insertData({ topicData, userData, articleData, commentData }) {
 			comment.created_at
 		])
 	);
-  await database.query(sql);
-}
+	await database.query(sql);
+};
 
-module.exports = seed;
+exports.insertData = async function (data, tableName) {
+	// get fields
+	const fields = Object.keys(data[0]).sort();
+
+	// get values
+	const values = data.map((datum) => {
+		return fields.map((field) => datum[field]);
+	});
+
+	const sql = format(
+		`
+    INSERT INTO %I
+    (${fields})
+    VALUES %L;
+  `,
+		tableName,
+		values
+	);
+
+	await database.query(sql);
+};
