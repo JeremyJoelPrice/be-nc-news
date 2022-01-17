@@ -6,6 +6,8 @@
   "scripts": {
     "setup-dbs": "psql -f ./db/setup.sql",
     "seed": "node ./db/seeds/run-seed.js",
+    "dev": "node ./listen.js",
+    "sandbox": "node ./sandbox/go.js",
     "test": "jest"
   },
   "repository": {
@@ -19,6 +21,13 @@
     "url": "https://github.com/northcoders/be-nc-news/issues"
   },
   "homepage": "https://github.com/northcoders/be-nc-news#readme",
-  "dependencies": {},
-  "devDependencies": {}
+  "devDependencies": {
+    "dotenv": "^14.1.0",
+    "jest": "^27.4.7",
+    "supertest": "^6.2.1"
+  },
+  "dependencies": {
+    "pg": "^8.7.1",
+    "pg-format": "^1.0.4"
+  }
 }
