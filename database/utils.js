@@ -49,6 +49,11 @@ exports.insertData = async function (data, tableName) {
 	// get fields
 	const fields = Object.keys(data[0]).sort();
 
+	// get field names
+	let fieldNames = "";
+	fields.forEach((field) => (fieldNames += `, ${field}`));
+	fieldNames = fieldNames.substring(2);
+
 	// get values
 	const values = data.map((datum) => {
 		return fields.map((field) => datum[field]);
@@ -57,10 +62,11 @@ exports.insertData = async function (data, tableName) {
 	const sql = format(
 		`
     INSERT INTO %I
-    (${fields})
+    (%s)
     VALUES %L;
   `,
 		tableName,
+		fieldNames,
 		values
 	);
 
