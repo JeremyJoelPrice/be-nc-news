@@ -1,11 +1,53 @@
 const database = require("../../database/connection.js");
+const format = require("pg-format");
 
-exports.readArticles = async () => {
-	// establish comment count
-	const result = await database.query(`
-	SELECT * FROM articles;
+exports.readArticles = async (
+	sort_by = "created_at",
+	sort_direction = "DESC"
+) => {
+	const validSortFields = [
+		"authro",
+		"title",
+		"article_id",
+		"topic",
+		"created_at",
+		"votes",
+		"comment_count"
+	];
+	if (
+		!validSortFields.includes(sort_by) ||
+		!(
+			sort_direction.toUpperCase() === "ASC" ||
+			sort_direction.toUpperCase() === "DESC"
+		)
+	)
+		throw { status: 400, message: "Bad Request: Invalid input" };
+
+	const sql = format(
+		`
+		SELECT * FROM articles
+		ORDER BY %s %s
+	`,
+		sort_by,
+		sort_direction
+	);
+	let result = await database.query(sql);
+	const articles = result.rows;
+
+	result = await database.query(`
+	SELECT * FROM comments;
 	`);
-	return [result.rows[0]];
+	const comments = result.rows;
+
+	articles.forEach((article) => {
+		const articleComments = comments.filter(
+			(comment) => comment.article_id === article.article_id
+		);
+		article.comment_count = articleComments.length;
+		delete article.body;
+	});
+
+	return articles;
 };
 
 exports.readArticleById = async (article_id) => {

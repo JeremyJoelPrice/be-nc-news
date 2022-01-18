@@ -38,38 +38,68 @@ describe("/api/topics", () => {
 
 describe("/api/articles", () => {
 	describe("GET", () => {
-		// returns array of articles
 		test("200 status and returns an array of articles", async () => {
 			const response = await supertest(app).get("/api/articles");
 			expect(Array.isArray(response.body)).toBe(true);
 			response.body.forEach((article) => {
-				expect(typeof article.author).toBe("string");
-				expect(typeof article.title).toBe("string");
-				expect(typeof article.article_id).toBe("number");
-				expect(typeof article.topic).toBe("string");
-				expect(typeof article.created_at).toBe("string");
-				expect(typeof article.votes).toBe("number");
-				expect(typeof article.comment_count).toBe("number");
-				expect(article).toEqual(
-					expect.objectContaining({
-						author: expect.any(String),
-						title: expect.any(String),
-						article_id: expect.any(Number),
-						topic: expect.any(String),
-						created_at: expect.any(String),
-						votes: expect.any(Number),
-						comment_count: expect.any(Number)
-					})
-				);
+				expect(article).toMatchObject({
+					author: expect.any(String),
+					title: expect.any(String),
+					article_id: expect.any(Number),
+					topic: expect.any(String),
+					created_at: expect.any(String),
+					votes: expect.any(Number),
+					comment_count: expect.any(Number)
+				});
 			});
 		});
-		// array has default sort criteria and sort direction
-		// sort array by any criteria
-		// error if given invalid sort criteria
-		// error if given invalid sort direction (asc/desc)
-		// filter by topic
-		// error if given invalid topic
-		// if given topic has no associated articles...?
+		test("200 status and returned array is sorted by date in descending order by default", async () => {
+			const response = await supertest(app).get("/api/articles");
+			expect(response.status).toBe(200);
+			expect(response.body).toBeSortedBy("created_at", { descending: true });
+		});
+		test("200 status and returned array is sorted by the given valid field, descending by default", async () => {
+			let response = await supertest(app).get("/api/articles?sort_by=title");
+			expect(response.status).toBe(200);
+			expect(response.body).toBeSortedBy("title", { descending: true });
+
+			response = await supertest(app).get("/api/articles?sort_by=topic");
+			expect(response.status).toBe(200);
+			expect(response.body).toBeSortedBy("topic", { descending: true });
+		});
+		test("200 status and returned array is sorted in the given direction", async () => {
+			let response = await supertest(app).get(
+				"/api/articles?sort_direction=asc"
+			);
+			expect(response.status).toBe(200);
+			expect(response.body).toBeSortedBy("created_at", { descending: false });
+			response = await supertest(app).get(
+				"/api/articles?sort_direction=desc"
+			);
+			expect(response.status).toBe(200);
+			expect(response.body).toBeSortedBy("created_at", { descending: true });
+		});
+		test("200 status and returned array is both sorted and ordered by the given values in conjunction", async () => {
+			let response = await supertest(app).get("/api/articles?sort_by=title&sort_direction=asc");
+			expect(response.status).toBe(200);
+			expect(response.body).toBeSortedBy("title", {descending: false});
+			
+			response = await supertest(app).get("/api/articles?sort_direction=asc&sort_by=title");
+			expect(response.status).toBe(200);
+			expect(response.body).toBeSortedBy("title", {descending: false});
+		});
+		test("400 status and returns `Bad Request: Invalid input` message, if given invalid sort criteria", async () => {
+			const result = await supertest(app).get("/api/articles?sort_by=banana");
+			expect(result.status).toBe(400);
+			expect(result.body.message).toBe("Bad Request: Invalid input");
+		});
+		test("400 status and returns `Bad Request: Invalid input` message, if given invalid sort direction", async () => {
+			const result = await supertest(app).get("/api/articles?sort_direction=banana");
+			expect(result.status).toBe(400);
+			expect(result.body.message).toBe("Bad Request: Invalid input");
+		});
+		// filter by field
+		// if given invalid field
 	});
 });
 

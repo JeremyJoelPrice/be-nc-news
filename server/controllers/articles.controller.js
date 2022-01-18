@@ -6,7 +6,8 @@ const {
 
 exports.getArticles = async (request, response, next) => {
 	try {
-		response.status(200).send(await readArticles());
+		const { sort_by, sort_direction } = request.query;
+		response.status(200).send(await readArticles(sort_by, sort_direction));
 	} catch (error) {
 		next(error);
 	}
