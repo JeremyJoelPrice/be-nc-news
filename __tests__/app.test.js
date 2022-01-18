@@ -39,7 +39,7 @@ describe("/api/topics", () => {
 describe("/api/articles", () => {
 	describe("GET", () => {
 		// returns array of articles
-		test.only("200 status and returns an array of articles", async () => {
+		test("200 status and returns an array of articles", async () => {
 			const response = await supertest(app).get("/api/articles");
 			expect(Array.isArray(response.body)).toBe(true);
 			response.body.forEach((article) => {

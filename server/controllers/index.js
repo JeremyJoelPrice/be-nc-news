@@ -8,7 +8,7 @@ const {
 	getArticles,
 	getArticleById,
 	patchArticleById
-} = require("./articles.controller");
+} = require("./articles.controller.js");
 exports.getArticles = getArticles;
 exports.getArticleById = getArticleById;
 exports.patchArticleById = patchArticleById;

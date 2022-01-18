@@ -1,4 +1,3 @@
-const { response } = require("../app.js");
 const {
 	readArticles,
 	readArticleById,
