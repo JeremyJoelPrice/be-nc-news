@@ -1,4 +1,9 @@
-const { readArticleById, updateArticleById } = require("./articles.model.js");
+const {
+	readArticles,
+	readArticleById,
+	updateArticleById
+} = require("./articles.model.js");
+exports.readArticles = readArticles;
 exports.readArticleById = readArticleById;
 exports.updateArticleById = updateArticleById;
 

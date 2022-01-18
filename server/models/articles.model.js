@@ -1,5 +1,13 @@
 const database = require("../../database/connection.js");
 
+exports.readArticles = async () => {
+	// establish comment count
+	const result = await database.query(`
+	SELECT * FROM articles;
+	`);
+	return [result.rows[0]];
+};
+
 exports.readArticleById = async (article_id) => {
 	const articleResponse = await database.query(
 		`
@@ -24,7 +32,19 @@ exports.readArticleById = async (article_id) => {
 	return article;
 };
 
-exports.updateArticleById = async (article_id, { inc_votes }) => {
+exports.updateArticleById = async (article_id, requestBody) => {
+	if (!requestBody.inc_votes) {
+		throw {
+			status: 400,
+			message: "Bad Request: key missing from request body"
+		};
+	}
+	if (Object.keys(requestBody).length > 1) {
+		throw {
+			status: 400,
+			message: "Bad Request: Unexpected key"
+		};
+	}
 	const response = await database.query(
 		`
 	UPDATE articles
@@ -32,7 +52,7 @@ exports.updateArticleById = async (article_id, { inc_votes }) => {
 	WHERE article_id = $2
 	RETURNING *;
 	`,
-		[inc_votes, article_id]
+		[requestBody.inc_votes, article_id]
 	);
 	return response.rows[0];
 };

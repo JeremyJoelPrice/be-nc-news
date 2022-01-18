@@ -1,4 +1,17 @@
-const { readArticleById, updateArticleById } = require("../models/index.js");
+const { response } = require("../app.js");
+const {
+	readArticles,
+	readArticleById,
+	updateArticleById
+} = require("../models/index.js");
+
+exports.getArticles = async (request, response, next) => {
+	try {
+		response.status(200).send(await readArticles());
+	} catch (error) {
+		next(error);
+	}
+};
 
 exports.getArticleById = async (request, response, next) => {
 	try {
@@ -10,7 +23,9 @@ exports.getArticleById = async (request, response, next) => {
 
 exports.patchArticleById = async (request, response, next) => {
 	try {
-		response.status(200).send(await updateArticleById(request.params.article_id, request.body));
+		response
+			.status(200)
+			.send(await updateArticleById(request.params.article_id, request.body));
 	} catch (error) {
 		next(error);
 	}

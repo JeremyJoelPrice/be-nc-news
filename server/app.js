@@ -1,10 +1,12 @@
 const {
 	getApiWelcomeMessage,
 	getTopics,
+	getArticles,
 	getArticleById,
 	patchArticleById
 } = require("./controllers/index.js");
 const {
+	handle404s,
 	handleCustomErrors,
 	handlePsqlErrors,
 	handleServerErrors
@@ -19,8 +21,12 @@ app.get("/api", getApiWelcomeMessage);
 
 app.get("/api/topics", getTopics);
 
+app.get("/api/articles", getArticles);
+
 app.get("/api/articles/:article_id", getArticleById);
 app.patch("/api/articles/:article_id", patchArticleById);
+
+app.all("/*", handle404s);
 
 app.use(handleCustomErrors);
 app.use(handlePsqlErrors);
