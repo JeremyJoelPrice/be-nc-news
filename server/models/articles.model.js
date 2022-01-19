@@ -16,31 +16,37 @@ exports.readArticles = async ({
 		"votes",
 		"comment_count"
 	];
+
+	// Check fort valid sorting and ordering criteria
 	if (
 		!validSortFields.includes(sort_by) ||
 		!(
 			sort_direction.toUpperCase() === "ASC" ||
 			sort_direction.toUpperCase() === "DESC"
 		)
-	)
+	) {
 		throw { status: 400, message: "Bad Request: Invalid input" };
+	}
 
+	// Get all articles, in the given order
 	const sql = format(
 		`
 		SELECT * FROM articles
 		ORDER BY %s %s
-	`,
+		`,
 		sort_by,
 		sort_direction
 	);
 	let articles = (await database.query(sql)).rows;
 
+	// Get all comments
 	const comments = (
 		await database.query(`
-	SELECT * FROM comments;
-	`)
+		SELECT * FROM comments;
+		`)
 	).rows;
 
+	// Add comment_count to each article
 	articles.forEach((article) => {
 		const articleComments = comments.filter(
 			(comment) => comment.article_id === article.article_id
@@ -57,68 +63,83 @@ exports.readArticles = async ({
 		articles = articles.filter((article) => article.topic === topic);
 	}
 
-	if (articles.length === 0)
+	if (articles.length === 0) {
 		return { status: 200, message: "No articles found" };
+	}
 
 	return articles;
 };
 
 exports.readArticleById = async (article_id) => {
-	const articleResponse = await database.query(
-		`
-    SELECT * FROM articles
-    WHERE article_id = $1;
-    `,
-		[article_id]
-	);
+	// Get search results for article
+	const article = (
+		await database.query(
+			`
+			SELECT * FROM articles
+			WHERE article_id = $1;
+			`,
+			[article_id]
+		)
+	).rows[0];
 
-	const article = articleResponse.rows[0];
+	// Check if article exists
 	if (!article) throw { status: 404, message: "Article not found" };
 
-	const commentsResponse = await database.query(
-		`
-    SELECT * FROM comments
-    WHERE article_id = $1;
-    `,
-		[article_id]
-	);
+	// Add comment count to article
+	article.comment_count = (
+		await database.query(
+			`
+			SELECT * FROM comments
+			WHERE article_id = $1;
+			`,
+			[article_id]
+		)
+	).rows.length;
 
-	article.comment_count = commentsResponse.rows.length;
 	return article;
 };
 
 exports.updateArticleById = async (article_id, requestBody) => {
-	if (!requestBody.inc_votes) {
-		throw {
-			status: 400,
-			message: "Bad Request: key missing from request body"
-		};
-	}
+	// Check for unexpected number of keys
 	if (Object.keys(requestBody).length > 1) {
 		throw {
 			status: 400,
 			message: "Bad Request: Unexpected key"
 		};
 	}
-	const response = await database.query(
-		`
-	UPDATE articles
-	SET votes = votes + $1
-	WHERE article_id = $2
-	RETURNING *;
-	`,
-		[requestBody.inc_votes, article_id]
-	);
-	return response.rows[0];
+
+	// Check inc_votes key is present
+	if (!requestBody.inc_votes) {
+		throw {
+			status: 400,
+			message: "Bad Request: key missing from request body"
+		};
+	}
+
+	// Get return value of patch request
+	const updatedArticle = (
+		await database.query(
+			`
+		UPDATE articles
+		SET votes = votes + $1
+		WHERE article_id = $2
+		RETURNING *;
+		`,
+			[requestBody.inc_votes, article_id]
+		)
+	).rows[0];
+
+	return updatedArticle;
 };
 
 exports.readCommentsByArticleId = async (article_id) => {
-	const comments = (await database.query(
-		`
-	SELECT * FROM comments WHERE article_id = $1
-	`,
-		[article_id]
-	)).rows;
-	console.log(comments);
+	const comments = (
+		await database.query(
+			`
+			SELECT * FROM comments WHERE article_id = $1
+			`,
+			[article_id]
+		)
+	).rows;
 	return comments;
 };
