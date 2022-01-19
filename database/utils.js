@@ -72,3 +72,10 @@ exports.insertData = async function (data, tableName) {
 
 	await database.query(sql);
 };
+
+exports.isExtantTopic = async function (topic) {
+	const topics = await database.query(`SELECT * FROM topics WHERE slug = $1`, [
+		topic
+	]);
+	return (topics.rows.length);
+};

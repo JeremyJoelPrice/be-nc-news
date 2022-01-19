@@ -98,8 +98,31 @@ describe("/api/articles", () => {
 			expect(result.status).toBe(400);
 			expect(result.body.message).toBe("Bad Request: Invalid input");
 		});
-		// filter by field
-		// if given invalid field
+		test("200 status and returned array is filtered by the given topic value", async () => {
+			let response = await supertest(app).get("/api/articles?topic=mitch");
+			expect(response.status).toBe(200);
+			expect(response.body.length).toBe(11);
+			response.body.forEach((article) => {
+				expect(article.topic).toBe("mitch");
+			});
+
+			response = await supertest(app).get("/api/articles?topic=cats");
+			expect(response.status).toBe(200);
+			expect(response.body.length).toBe(1);
+			response.body.forEach((article) => {
+				expect(article.topic).toBe("cats");
+			});
+		});
+		test("400 status and 'Bad Request: Invalid input' message, if given invalid topic", async () => {
+			const response = await supertest(app).get("/api/articles?topic=banana");
+			expect(response.status).toBe(400);
+			expect(response.body.message).toBe("Bad Request: Invalid input");
+		});
+		test("200 status and 'No articles found' message, if given valid topic which has no articles", async () => {
+			const request = await supertest(app).get("/api/articles?topic=paper");
+			expect(request.status).toBe(200);
+			expect(request.body.message).toBe("No articles found");
+		});
 	});
 });
 
@@ -186,3 +209,4 @@ describe("/api/articles/:article_id", () => {
 		});
 	});
 });
+

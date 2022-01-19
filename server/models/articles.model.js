@@ -1,10 +1,12 @@
 const database = require("../../database/connection.js");
 const format = require("pg-format");
+const { isExtantTopic } = require("../../database/utils.js");
 
-exports.readArticles = async (
+exports.readArticles = async ({
 	sort_by = "created_at",
-	sort_direction = "DESC"
-) => {
+	sort_direction = "DESC",
+	topic
+}) => {
 	const validSortFields = [
 		"authro",
 		"title",
@@ -31,13 +33,11 @@ exports.readArticles = async (
 		sort_by,
 		sort_direction
 	);
-	let result = await database.query(sql);
-	const articles = result.rows;
+	let articles = (await database.query(sql)).rows;
 
-	result = await database.query(`
+	const comments = (await database.query(`
 	SELECT * FROM comments;
-	`);
-	const comments = result.rows;
+	`)).rows;
 
 	articles.forEach((article) => {
 		const articleComments = comments.filter(
@@ -46,6 +46,16 @@ exports.readArticles = async (
 		article.comment_count = articleComments.length;
 		delete article.body;
 	});
+
+	// Check topic has a value, and that value exists in the database
+	if (topic) {
+		if (!(await isExtantTopic(topic))) {
+			throw { status: 400, message: "Bad Request: Invalid input" };
+		}
+		articles = articles.filter((article) => article.topic === topic);
+	}
+
+	if (articles.length === 0) return {status: 200, message: "No articles found"};
 
 	return articles;
 };
