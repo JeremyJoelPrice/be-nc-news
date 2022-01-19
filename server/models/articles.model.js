@@ -71,6 +71,8 @@ exports.readArticles = async ({
 };
 
 exports.readArticleById = async (article_id) => {
+	await vetArticleId(article_id);
+
 	// Get search results for article
 	const article = (
 		await database.query(
@@ -81,9 +83,6 @@ exports.readArticleById = async (article_id) => {
 			[article_id]
 		)
 	).rows[0];
-
-	// Check if article exists
-	if (!article) throw { status: 404, message: "Article not found" };
 
 	// Add comment count to article
 	article.comment_count = (
@@ -100,6 +99,8 @@ exports.readArticleById = async (article_id) => {
 };
 
 exports.updateArticleById = async (article_id, requestBody) => {
+	await vetArticleId(article_id);
+
 	// Check for unexpected number of keys
 	if (Object.keys(requestBody).length > 1) {
 		throw {

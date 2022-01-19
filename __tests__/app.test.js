@@ -210,8 +210,18 @@ describe("/api/articles/:article_id", () => {
 			expect(response.status).toBe(400);
 			expect(response.body.message).toBe("Bad Request: Unexpected key");
 		});
-		// valid unsued article_id
-		// invalid article_id
+		test("404 status and returns 'Article not found' message, if given an unused valid article_id", async () => {
+			const response = await supertest(app).get("/api/articles/99999");
+			expect(response.status).toBe(404);
+			expect(response.body.message).toBe("Article not found");
+		});
+		test("400 status and returns 'Bad Request: Invalid input' message, if given an invalid article_id", async () => {
+			const response = await supertest(app).get(
+				"/api/articles/banana"
+			);
+			expect(response.status).toBe(400);
+			expect(response.body.message).toBe("Bad Request: Invalid input");
+		});
 	});
 });
 

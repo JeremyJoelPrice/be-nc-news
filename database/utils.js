@@ -82,7 +82,7 @@ exports.isExtantTopic = async (topic) => {
 
 exports.vetArticleId = async (article_id) => {
 	if (!(parseInt(article_id) > 0)) {
-		throw { status: 400, message: "Invalid input" };
+		throw { status: 400, message: "Bad Request: Invalid input" };
 	}
 	const articles = (
 		await database.query(`SELECT * FROM articles WHERE article_id = $1`, [
