@@ -35,9 +35,11 @@ exports.readArticles = async ({
 	);
 	let articles = (await database.query(sql)).rows;
 
-	const comments = (await database.query(`
+	const comments = (
+		await database.query(`
 	SELECT * FROM comments;
-	`)).rows;
+	`)
+	).rows;
 
 	articles.forEach((article) => {
 		const articleComments = comments.filter(
@@ -55,7 +57,8 @@ exports.readArticles = async ({
 		articles = articles.filter((article) => article.topic === topic);
 	}
 
-	if (articles.length === 0) return {status: 200, message: "No articles found"};
+	if (articles.length === 0)
+		return { status: 200, message: "No articles found" };
 
 	return articles;
 };
@@ -107,4 +110,15 @@ exports.updateArticleById = async (article_id, requestBody) => {
 		[requestBody.inc_votes, article_id]
 	);
 	return response.rows[0];
+};
+
+exports.readCommentsByArticleId = async (article_id) => {
+	const comments = (await database.query(
+		`
+	SELECT * FROM comments WHERE article_id = $1
+	`,
+		[article_id]
+	)).rows;
+	console.log(comments);
+	return comments;
 };

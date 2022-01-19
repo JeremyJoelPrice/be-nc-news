@@ -73,20 +73,22 @@ describe("/api/articles", () => {
 			);
 			expect(response.status).toBe(200);
 			expect(response.body).toBeSortedBy("created_at", { descending: false });
-			response = await supertest(app).get(
-				"/api/articles?sort_direction=desc"
-			);
+			response = await supertest(app).get("/api/articles?sort_direction=desc");
 			expect(response.status).toBe(200);
 			expect(response.body).toBeSortedBy("created_at", { descending: true });
 		});
 		test("200 status and returned array is both sorted and ordered by the given values in conjunction", async () => {
-			let response = await supertest(app).get("/api/articles?sort_by=title&sort_direction=asc");
+			let response = await supertest(app).get(
+				"/api/articles?sort_by=title&sort_direction=asc"
+			);
 			expect(response.status).toBe(200);
-			expect(response.body).toBeSortedBy("title", {descending: false});
-			
-			response = await supertest(app).get("/api/articles?sort_direction=asc&sort_by=title");
+			expect(response.body).toBeSortedBy("title", { descending: false });
+
+			response = await supertest(app).get(
+				"/api/articles?sort_direction=asc&sort_by=title"
+			);
 			expect(response.status).toBe(200);
-			expect(response.body).toBeSortedBy("title", {descending: false});
+			expect(response.body).toBeSortedBy("title", { descending: false });
 		});
 		test("400 status and returns `Bad Request: Invalid input` message, if given invalid sort criteria", async () => {
 			const result = await supertest(app).get("/api/articles?sort_by=banana");
@@ -94,7 +96,9 @@ describe("/api/articles", () => {
 			expect(result.body.message).toBe("Bad Request: Invalid input");
 		});
 		test("400 status and returns `Bad Request: Invalid input` message, if given invalid sort direction", async () => {
-			const result = await supertest(app).get("/api/articles?sort_direction=banana");
+			const result = await supertest(app).get(
+				"/api/articles?sort_direction=banana"
+			);
 			expect(result.status).toBe(400);
 			expect(result.body.message).toBe("Bad Request: Invalid input");
 		});
@@ -210,3 +214,24 @@ describe("/api/articles/:article_id", () => {
 	});
 });
 
+describe("/api/articles/:article_id/comments", () => {
+	describe("GET", () => {
+		test("200 status code and returns array of comments relating to the given article_id", async () => {
+			const response = await supertest(app).get("/api/articles/1/comments");
+			expect(response.status).toBe(200);
+			response.body.forEach((comment) => {
+				expect(comment).toMatchObject({
+					comment_id: expect.any(Number),
+					votes: expect.any(Number),
+					created_at: expect.any(String),
+					author: expect.any(String),
+					body: expect.any(String),
+					article_id: 1
+				});
+			});
+		});
+	});
+});
+// valid, unused article id
+// invalid article id
+// articel id has no comments

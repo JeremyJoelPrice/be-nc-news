@@ -7,8 +7,10 @@ exports.getTopics = getTopics;
 const {
 	getArticles,
 	getArticleById,
-	patchArticleById
+	patchArticleById,
+	getCommentsByArticleId
 } = require("./articles.controller.js");
 exports.getArticles = getArticles;
 exports.getArticleById = getArticleById;
 exports.patchArticleById = patchArticleById;
+exports.getCommentsByArticleId = getCommentsByArticleId;

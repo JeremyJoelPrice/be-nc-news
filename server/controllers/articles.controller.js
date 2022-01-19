@@ -1,7 +1,8 @@
 const {
 	readArticles,
 	readArticleById,
-	updateArticleById
+	updateArticleById,
+	readCommentsByArticleId
 } = require("../models/index.js");
 
 exports.getArticles = async (request, response, next) => {
@@ -25,6 +26,14 @@ exports.patchArticleById = async (request, response, next) => {
 		response
 			.status(200)
 			.send(await updateArticleById(request.params.article_id, request.body));
+	} catch (error) {
+		next(error);
+	}
+};
+
+exports.getCommentsByArticleId = async (request, response, next) => {
+	try {
+		response.status(200).send(await readCommentsByArticleId(request.params.article_id));
 	} catch (error) {
 		next(error);
 	}
