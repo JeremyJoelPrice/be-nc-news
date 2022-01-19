@@ -7,7 +7,6 @@ const {
 	getCommentsByArticleId
 } = require("./controllers/index.js");
 const {
-	handle404s,
 	handleCustomErrors,
 	handlePsqlErrors,
 	handleServerErrors
@@ -29,7 +28,7 @@ app.patch("/api/articles/:article_id", patchArticleById);
 
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 
-app.all("/*", handle404s);
+// app.all("/*", handle404s);
 
 app.use(handleCustomErrors);
 app.use(handlePsqlErrors);

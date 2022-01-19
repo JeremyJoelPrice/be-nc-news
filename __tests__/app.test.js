@@ -6,10 +6,9 @@ const supertest = require("supertest");
 
 beforeEach(() => seed(testData));
 afterAll(() => db.end());
-
 describe("/api", () => {
 	describe("GET", () => {
-		test("status 200 and returns welcome message", async () => {
+		test("200 status and returns welcome message", async () => {
 			const response = await supertest(app).get("/api");
 			expect(response.status).toBe(200);
 			expect(response.body.message).toBe("Welcome to NC_News API");
@@ -19,7 +18,7 @@ describe("/api", () => {
 
 describe("/api/topics", () => {
 	describe("GET", () => {
-		test("200 status and returns array of topics", async () => {
+		test("200 status and returns an array of topics", async () => {
 			const response = await supertest(app).get("/api/topics");
 			expect(response.status).toBe(200);
 			const topics = response.body;
@@ -117,12 +116,12 @@ describe("/api/articles", () => {
 				expect(article.topic).toBe("cats");
 			});
 		});
-		test("400 status and 'Bad Request: Invalid input' message, if given invalid topic", async () => {
+		test("400 status and returns 'Bad Request: Invalid input' message, if given invalid topic", async () => {
 			const response = await supertest(app).get("/api/articles?topic=banana");
 			expect(response.status).toBe(400);
 			expect(response.body.message).toBe("Bad Request: Invalid input");
 		});
-		test("200 status and 'No articles found' message, if given valid topic which has no articles", async () => {
+		test("200 status and returns 'No articles found' message, if given valid topic which has no articles", async () => {
 			const request = await supertest(app).get("/api/articles?topic=paper");
 			expect(request.status).toBe(200);
 			expect(request.body.message).toBe("No articles found");
@@ -148,12 +147,12 @@ describe("/api/articles/:article_id", () => {
 				})
 			);
 		});
-		test("if given an unused valid article_id, 404 status and returns 'Article not found' message", async () => {
+		test("404 status and returns 'Article not found' message, if given an unused valid article_id", async () => {
 			const response = await supertest(app).get("/api/articles/99999");
 			expect(response.status).toBe(404);
 			expect(response.body.message).toBe("Article not found");
 		});
-		test("if given an invalid article_id, 400 status and returns 'Bad Request: Invalid input' message", async () => {
+		test("400 status and returns 'Bad Request: Invalid input' message, if given an invalid article_id", async () => {
 			const response = await supertest(app).get("/api/articles/banana");
 			expect(response.status).toBe(400);
 			expect(response.body.message).toBe("Bad Request: Invalid input");
@@ -211,12 +210,14 @@ describe("/api/articles/:article_id", () => {
 			expect(response.status).toBe(400);
 			expect(response.body.message).toBe("Bad Request: Unexpected key");
 		});
+		// valid unsued article_id
+		// invalid article_id
 	});
 });
 
 describe("/api/articles/:article_id/comments", () => {
 	describe("GET", () => {
-		test("200 status code and returns array of comments relating to the given article_id", async () => {
+		test("200 status and returns array of comments relating to the given article_id", async () => {
 			const response = await supertest(app).get("/api/articles/1/comments");
 			expect(response.status).toBe(200);
 			response.body.forEach((comment) => {
@@ -230,8 +231,22 @@ describe("/api/articles/:article_id/comments", () => {
 				});
 			});
 		});
+		test("404 status and returns 'Article not found' message, if given an unused valid article_id", async () => {
+			const response = await supertest(app).get("/api/articles/99999/comments");
+			expect(response.status).toBe(404);
+			expect(response.body.message).toBe("Article not found");
+		});
+		test("400 status and returns 'Bad Request: Invalid input' message, if given an invalid article_id", async () => {
+			const response = await supertest(app).get(
+				"/api/articles/banana/comments"
+			);
+			expect(response.status).toBe(400);
+			expect(response.body.message).toBe("Bad Request: Invalid input");
+		});
+		test("200 status and returns 'No comments found for this article' message, if given article has no comments", async () => {
+			const response = await supertest(app).get("/api/articles/2/comments");
+			expect(response.status).toBe(200);
+			expect(response.body.message).toBe("No comments found for this article");
+		});
 	});
 });
-// valid, unused article id
-// invalid article id
-// articel id has no comments

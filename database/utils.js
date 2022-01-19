@@ -1,14 +1,14 @@
 const database = require("./connection.js");
 const format = require("pg-format");
 
-exports.dropTables = async function () {
+exports.dropTables = async () => {
 	await database.query(`DROP TABLE IF EXISTS comments;`);
 	await database.query(`DROP TABLE IF EXISTS articles;`);
 	await database.query(`DROP TABLE IF EXISTS topics;`);
 	await database.query(`DROP TABLE IF EXISTS users;`);
 };
 
-exports.createTables = async function () {
+exports.createTables = async () => {
 	await database.query(`
   CREATE TABLE topics (
     slug TEXT PRIMARY KEY,
@@ -45,7 +45,7 @@ exports.createTables = async function () {
   `);
 };
 
-exports.insertData = async function (data, tableName) {
+exports.insertData = async (data, tableName) => {
 	// get fields
 	const fields = Object.keys(data[0]).sort();
 
@@ -73,9 +73,21 @@ exports.insertData = async function (data, tableName) {
 	await database.query(sql);
 };
 
-exports.isExtantTopic = async function (topic) {
+exports.isExtantTopic = async (topic) => {
 	const topics = await database.query(`SELECT * FROM topics WHERE slug = $1`, [
 		topic
 	]);
-	return (topics.rows.length);
+	return topics.rows.length;
+};
+
+exports.vetArticleId = async (article_id) => {
+	if (!(parseInt(article_id) > 0)) {
+		throw { status: 400, message: "Invalid input" };
+	}
+	const articles = (
+		await database.query(`SELECT * FROM articles WHERE article_id = $1`, [
+			article_id
+		])
+	).rows;
+	if (!articles.length) throw { status: 404, message: "Article not found" };
 };

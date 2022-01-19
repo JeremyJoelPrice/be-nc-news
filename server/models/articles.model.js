@@ -1,6 +1,6 @@
 const database = require("../../database/connection.js");
 const format = require("pg-format");
-const { isExtantTopic } = require("../../database/utils.js");
+const { isExtantTopic, vetArticleId } = require("../../database/utils.js");
 
 exports.readArticles = async ({
 	sort_by = "created_at",
@@ -133,6 +133,8 @@ exports.updateArticleById = async (article_id, requestBody) => {
 };
 
 exports.readCommentsByArticleId = async (article_id) => {
+	await vetArticleId(article_id);
+
 	const comments = (
 		await database.query(
 			`
@@ -141,5 +143,8 @@ exports.readCommentsByArticleId = async (article_id) => {
 			[article_id]
 		)
 	).rows;
+	if (comments.length === 0) {
+		throw { status: 200, message: "No comments found for this article" };
+	}
 	return comments;
 };
