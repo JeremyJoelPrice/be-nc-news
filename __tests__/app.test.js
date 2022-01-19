@@ -339,14 +339,27 @@ describe("/api/articles/:article_id/comments", () => {
 			expect(status).toBe(400);
 			expect(body.message).toBe("Bad Request: Invalid input");
 		});
-		test("400 status and returns 'Bad Request: Invalid input' message, if given a comment with additional keys", async () => {
-			const comment = {
+		test("400 status and returns 'Bad Request: Invalid input' message, if given a comment which lacks either username or body keys", async () => {
+			// lacks body
+			let comment = {
 				username: "rogersop",
 				colout: "green"
 			};
-			const { status, body } = await supertest(app)
+			let { status, body } = await supertest(app)
 				.post("/api/articles/1/comments")
 				.send(comment);
+			expect(status).toBe(400);
+			expect(body.message).toBe("Bad Request: Invalid input");
+			// lacks username
+			comment = {
+				body: "this is my comment",
+				colout: "green"
+			};
+			const response = await supertest(app)
+				.post("/api/articles/1/comments")
+				.send(comment);
+			status = response.status;
+			body = response.body;
 			expect(status).toBe(400);
 			expect(body.message).toBe("Bad Request: Invalid input");
 		});
@@ -360,6 +373,32 @@ describe("/api/articles/:article_id/comments", () => {
 				.send(comment);
 			expect(status).toBe(400);
 			expect(body.message).toBe("Bad Request: Invalid input");
+		});
+	});
+});
+
+describe("/api/comments/:comment_id", () => {
+	describe("DELETE", () => {
+		test("204 status and returns nothing, deleted comment now can't be found in database", async () => {
+			let { status, body } = await supertest(app).delete("/api/comments/1");
+			expect(status).toBe(204);
+			expect(body).toEqual({});
+			const response = (
+				await database.query(`SELECT * FROM comments WHERE comment_id = 1`)
+			).rows;
+			expect(response.length).toBe(0);
+		});
+		test("400 status and returns 'Bad Request: Invalid input' message, if given an invalid comment_id", async () => {
+			let { status, body } = await supertest(app).delete(
+				"/api/comments/banana"
+			);
+			expect(status).toBe(400);
+			expect(body.message).toBe("Bad Request: Invalid input");
+		});
+		test("404 status and returns 'Comment not found' message, if given an unused valid article_id", async () => {
+			let { status, body } = await supertest(app).delete("/api/comments/99999");
+			expect(status).toBe(404);
+			expect(body.message).toBe("Comment not found");
 		});
 	});
 });

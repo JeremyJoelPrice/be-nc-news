@@ -16,3 +16,6 @@ exports.getArticleById = getArticleById;
 exports.patchArticleById = patchArticleById;
 exports.getCommentsByArticleId = getCommentsByArticleId;
 exports.postCommentByArticleId = postCommentByArticleId;
+
+const { deleteCommentById } = require("./comments.controller.js");
+exports.deleteCommentById = deleteCommentById;

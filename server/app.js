@@ -5,7 +5,8 @@ const {
 	getArticleById,
 	patchArticleById,
 	getCommentsByArticleId,
-	postCommentByArticleId
+	postCommentByArticleId,
+	deleteCommentById
 } = require("./controllers/index.js");
 const {
 	handleCustomErrors,
@@ -29,6 +30,8 @@ app.patch("/api/articles/:article_id", patchArticleById);
 
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 app.post("/api/articles/:article_id/comments", postCommentByArticleId);
+
+app.delete("/api/comments/:comment_id", deleteCommentById);
 
 // app.all("/*", handle404s);
 

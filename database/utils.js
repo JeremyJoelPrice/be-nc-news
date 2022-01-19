@@ -91,3 +91,15 @@ exports.vetArticleId = async (article_id) => {
 	).rows;
 	if (!articles.length) throw { status: 404, message: "Article not found" };
 };
+
+exports.vetCommentId = async (comment_id) => {
+	if (!(parseInt(comment_id) > 0)) {
+		throw { status: 400, message: "Bad Request: Invalid input" };
+	}
+	const comments = (
+		await database.query(`SELECT * FROM comments WHERE comment_id = $1`, [
+			comment_id
+		])
+	).rows;
+	if (!comments.length) throw { status: 404, message: "Comment not found" };
+};
