@@ -8,9 +8,11 @@ const {
 	getArticles,
 	getArticleById,
 	patchArticleById,
-	getCommentsByArticleId
+	getCommentsByArticleId,
+	postCommentByArticleId
 } = require("./articles.controller.js");
 exports.getArticles = getArticles;
 exports.getArticleById = getArticleById;
 exports.patchArticleById = patchArticleById;
 exports.getCommentsByArticleId = getCommentsByArticleId;
+exports.postCommentByArticleId = postCommentByArticleId;
