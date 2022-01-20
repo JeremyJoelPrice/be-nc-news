@@ -8,7 +8,7 @@ beforeEach(() => seed(testData));
 afterAll(() => database.end());
 describe("/api", () => {
 	describe("GET", () => {
-		test.only("200 status and returns JSON of all avialable endpoints", async () => {
+		test("200 status and returns JSON of all avialable endpoints", async () => {
 			const { status, body } = await supertest(app).get("/api");
 			expect(status).toBe(200);
 			expect(body.message).toEqual({
