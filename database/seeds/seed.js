@@ -8,7 +8,6 @@ const seed = async ({ topicData, userData, articleData, commentData }) => {
 		await insertData(userData, "users");
 		await insertData(articleData, "articles");
 		await insertData(commentData, "comments");
-		console.log("Database seeded");
 	} catch (error) {
 		console.log(error);
 	}

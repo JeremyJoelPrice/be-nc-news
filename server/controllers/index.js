@@ -7,15 +7,17 @@ exports.getTopics = getTopics;
 const {
 	getArticles,
 	getArticleById,
-	patchArticleById,
-	getCommentsByArticleId,
-	postCommentByArticleId
+	patchArticleById
 } = require("./articles.controller.js");
 exports.getArticles = getArticles;
 exports.getArticleById = getArticleById;
 exports.patchArticleById = patchArticleById;
+
+const {
+	deleteCommentById,
+	getCommentsByArticleId,
+	postCommentByArticleId
+} = require("./comments.controller.js");
+exports.deleteCommentById = deleteCommentById;
 exports.getCommentsByArticleId = getCommentsByArticleId;
 exports.postCommentByArticleId = postCommentByArticleId;
-
-const { deleteCommentById } = require("./comments.controller.js");
-exports.deleteCommentById = deleteCommentById;

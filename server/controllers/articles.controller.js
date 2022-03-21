@@ -1,14 +1,13 @@
 const {
 	readArticles,
 	readArticleById,
-	updateArticleById,
-	readCommentsByArticleId,
-	createCommentByArticleId
-} = require("../models/index.js");
+	updateArticleById
+} = require("../models");
 
 exports.getArticles = async (request, response, next) => {
 	try {
-		response.status(200).send(await readArticles(request.query));
+		const articles = await readArticles(request.query);
+		response.status(200).send({ articles });
 	} catch (error) {
 		next(error);
 	}
@@ -16,7 +15,8 @@ exports.getArticles = async (request, response, next) => {
 
 exports.getArticleById = async (request, response, next) => {
 	try {
-		response.status(200).send(await readArticleById(request.params.article_id));
+		const article = await readArticleById(request.params.article_id);
+		response.status(200).send({ article });
 	} catch (error) {
 		next(error);
 	}
@@ -24,31 +24,11 @@ exports.getArticleById = async (request, response, next) => {
 
 exports.patchArticleById = async (request, response, next) => {
 	try {
-		response
-			.status(200)
-			.send(await updateArticleById(request.params.article_id, request.body));
-	} catch (error) {
-		next(error);
-	}
-};
-
-exports.getCommentsByArticleId = async (request, response, next) => {
-	try {
-		response
-			.status(200)
-			.send(await readCommentsByArticleId(request.params.article_id));
-	} catch (error) {
-		next(error);
-	}
-};
-
-exports.postCommentByArticleId = async (request, response, next) => {
-	try {
-		response
-			.status(200)
-			.send(
-				await createCommentByArticleId(request.params.article_id, request.body)
-			);
+		const article = await updateArticleById(
+			request.params.article_id,
+			request.body
+		);
+		response.status(200).send({ article });
 	} catch (error) {
 		next(error);
 	}

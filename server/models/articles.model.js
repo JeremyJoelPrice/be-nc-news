@@ -63,10 +63,6 @@ exports.readArticles = async ({
 		articles = articles.filter((article) => article.topic === topic);
 	}
 
-	if (articles.length === 0) {
-		return { status: 200, message: "No articles found" };
-	}
-
 	return articles;
 };
 
@@ -131,51 +127,4 @@ exports.updateArticleById = async (article_id, requestBody) => {
 	).rows[0];
 
 	return updatedArticle;
-};
-
-exports.readCommentsByArticleId = async (article_id) => {
-	await vetArticleId(article_id);
-
-	const comments = (
-		await database.query(
-			`
-			SELECT * FROM comments WHERE article_id = $1
-			`,
-			[article_id]
-		)
-	).rows;
-	if (comments.length === 0) {
-		throw { status: 200, message: "No comments found for this article" };
-	}
-	return comments;
-};
-
-exports.createCommentByArticleId = async (article_id, comment) => {
-	await vetArticleId(article_id);
-
-	// Vet comment object
-	const { body, username } = comment;
-	if (
-		Object.keys(comment).length !== 2 ||
-		!body ||
-		!username ||
-		typeof body !== "string" ||
-		typeof username !== "string"
-	) {
-		throw { status: 400, message: "Bad Request: Invalid input" };
-	}
-
-	// Post comment
-	const response = (
-		await database.query(
-			`
-			INSERT INTO comments
-			(article_id, body, author)
-			VALUES ($1, $2, $3)
-			RETURNING *;
-			`,
-			[article_id, body, username]
-		)
-	).rows[0];
-	return response;
 };

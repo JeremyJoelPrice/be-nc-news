@@ -1,15 +1,20 @@
 const {
 	readArticles,
 	readArticleById,
-	updateArticleById,
-	readCommentsByArticleId,
-	createCommentByArticleId
+	updateArticleById
 } = require("./articles.model.js");
 exports.readArticles = readArticles;
 exports.readArticleById = readArticleById;
 exports.updateArticleById = updateArticleById;
-exports.readCommentsByArticleId = readCommentsByArticleId;
-exports.createCommentByArticleId = createCommentByArticleId;
 
 const { readTopics } = require("./topics.model");
 exports.readTopics = readTopics;
+
+const {
+	createCommentByArticleId,
+	removeCommentById,
+	readCommentsByArticleId
+} = require("./comments.model");
+exports.createCommentByArticleId = createCommentByArticleId;
+exports.removeCommentById = removeCommentById;
+exports.readCommentsByArticleId = readCommentsByArticleId;

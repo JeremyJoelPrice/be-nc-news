@@ -9,98 +9,10 @@ afterAll(() => database.end());
 describe("/api", () => {
 	describe("GET", () => {
 		test("200 status and returns JSON of all avialable endpoints", async () => {
+			const greeting = require("../server/greeting.json");
 			const { status, body } = await supertest(app).get("/api");
 			expect(status).toBe(200);
-			expect(body.message).toEqual({
-				"GET /api": {
-					"description":
-						"serves up a json representation of all the available endpoints of the api"
-				},
-				"GET /api/topics": {
-					"description": "serves an array of all topics",
-					"queries": [],
-					"exampleResponse": [{ "slug": "football", "description": "Footie!" }]
-				},
-				"GET /api/articles": {
-					"description": "serves an array of all articles",
-					"queries": ["order", "sort_by", "topic"],
-					"exampleResponse": [
-						{
-							"title": "Seafood substitutions are increasing",
-							"article_id": 9,
-							"topic": "cooking",
-							"author": "weegembump",
-							"created_at": "2020-07-09T21:11:00.000Z",
-							"comment_count": 12
-						}
-					]
-				},
-				"GET /api/articles/:article_id": {
-					"description": "serves the article specified by the given article_id",
-					"queries": [],
-					"exampleResponse": {
-						"article_id": 1,
-						"title": "Living in the shadow of a great man",
-						"body": "I find this existence challenging",
-						"votes": 100,
-						"topic": "mitch",
-						"author": "butter_bridge",
-						"created_at": "2020-07-09T21:11:00.000Z",
-						"comment_count": 11
-					}
-				},
-				"PATCH /api/articles/:article_id": {
-					"description":
-						"edits the vote count of, and serves, the article specified by the given article_id",
-					"queries": [],
-					"validBody": {
-						"inc_votes": 1
-					},
-					"exampleResponse": {
-						"article_id": 1,
-						"title": "Living in the shadow of a great man",
-						"body": "I find this existence challenging",
-						"votes": 1000,
-						"topic": "mitch",
-						"author": "butter_bridge",
-						"created_at": "2020-07-09T21:11:00.000Z",
-						"comment_count": 11
-					}
-				},
-				"GET /api/articles/:article_id/comments" : {
-					"description": "serves an array of all comments made on the given article_id",
-					"queries": [],
-					"exampleResponse": [
-						{
-							"body": 'Itaque quisquam est similique et est perspiciatis reprehenderit voluptatem autem. Voluptatem accusantium eius error adipisci quibusdam doloribus.',
-							"votes": -1,
-							"author": 'tickle122',
-							"article_id": 18,
-							"created_at": "2020-07-09T21:11:00.000Z",
-						}
-					]
-				},
-				"POST /api/articles/:article_id/comments" : {
-					"description": "post, and serves, a new comment on the given article_id",
-					"queries": [],
-					"validBody": {
-						"username": "mitch",
-						"body": "this is my comment"
-					},
-					"exampleResponse": {
-						"body": 'Itaque quisquam est similique et est perspiciatis reprehenderit voluptatem autem. Voluptatem accusantium eius error adipisci quibusdam doloribus.',
-						"votes": -1,
-						"author": 'tickle122',
-						"article_id": 18,
-						"created_at": "2020-07-09T21:11:00.000Z",
-					}
-				},
-				"DELETE /api/comments/:comment_id": {
-					"description": "Deletes the comment specified by comment_id",
-					"queries": [],
-					"exampleResponse": {}
-				}
-			});
+			expect(body.message).toEqual(greeting);
 		});
 	});
 });
@@ -110,14 +22,12 @@ describe("/api/topics", () => {
 		test("200 status and returns an array of topics", async () => {
 			const { status, body } = await supertest(app).get("/api/topics");
 			expect(status).toBe(200);
-			expect(Array.isArray(body)).toBe(true);
-			body.forEach((topic) => {
-				expect(topic).toEqual(
-					expect.objectContaining({
-						slug: expect.any(String),
-						description: expect.any(String)
-					})
-				);
+			expect(Array.isArray(body.topics)).toBe(true);
+			body.topics.forEach((topic) => {
+				expect(topic).toMatchObject({
+					slug: expect.any(String),
+					description: expect.any(String)
+				});
 			});
 		});
 	});
@@ -128,8 +38,8 @@ describe("/api/articles", () => {
 		test("200 status and returns an array of articles", async () => {
 			const { status, body } = await supertest(app).get("/api/articles");
 			expect(status).toBe(200);
-			expect(Array.isArray(body)).toBe(true);
-			body.forEach((article) => {
+			expect(Array.isArray(body.articles)).toBe(true);
+			body.articles.forEach((article) => {
 				expect(article).toMatchObject({
 					author: expect.any(String),
 					title: expect.any(String),
@@ -144,41 +54,41 @@ describe("/api/articles", () => {
 		test("200 status and returned array is sorted by date in descending order by default", async () => {
 			const { status, body } = await supertest(app).get("/api/articles");
 			expect(status).toBe(200);
-			expect(body).toBeSortedBy("created_at", { descending: true });
+			expect(body.articles).toBeSortedBy("created_at", { descending: true });
 		});
 		test("200 status and returned array is sorted by the given valid field, descending by default", async () => {
 			let { status, body } = await supertest(app).get(
 				"/api/articles?sort_by=title"
 			);
 			expect(status).toBe(200);
-			expect(body).toBeSortedBy("title", { descending: true });
+			expect(body.articles).toBeSortedBy("title", { descending: true });
 
 			const response = await supertest(app).get("/api/articles?sort_by=topic");
 			status = response.status;
 			body = response.body;
 			expect(status).toBe(200);
-			expect(body).toBeSortedBy("topic", { descending: true });
+			expect(body.articles).toBeSortedBy("topic", { descending: true });
 		});
 		test("200 status and returned array is sorted in the given direction", async () => {
 			let { status, body } = await supertest(app).get(
 				"/api/articles?sort_direction=asc"
 			);
 			expect(status).toBe(200);
-			expect(body).toBeSortedBy("created_at", { descending: false });
+			expect(body.articles).toBeSortedBy("created_at", { descending: false });
 			const response = await supertest(app).get(
 				"/api/articles?sort_direction=desc"
 			);
 			status = response.status;
 			body = response.body;
 			expect(status).toBe(200);
-			expect(body).toBeSortedBy("created_at", { descending: true });
+			expect(body.articles).toBeSortedBy("created_at", { descending: true });
 		});
 		test("200 status and returned array is both sorted and ordered by the given values in conjunction", async () => {
 			let { status, body } = await supertest(app).get(
 				"/api/articles?sort_by=title&sort_direction=asc"
 			);
 			expect(status).toBe(200);
-			expect(body).toBeSortedBy("title", { descending: false });
+			expect(body.articles).toBeSortedBy("title", { descending: false });
 
 			const response = await supertest(app).get(
 				"/api/articles?sort_direction=asc&sort_by=title"
@@ -186,7 +96,7 @@ describe("/api/articles", () => {
 			status = response.status;
 			body = response.body;
 			expect(status).toBe(200);
-			expect(body).toBeSortedBy("title", { descending: false });
+			expect(body.articles).toBeSortedBy("title", { descending: false });
 		});
 		test("400 status and returns `Bad Request: Invalid input` message, if given invalid sort criteria", async () => {
 			const result = await supertest(app).get("/api/articles?sort_by=banana");
@@ -205,8 +115,8 @@ describe("/api/articles", () => {
 				"/api/articles?topic=mitch"
 			);
 			expect(status).toBe(200);
-			expect(body.length).toBe(11);
-			body.forEach((article) => {
+			expect(body.articles.length).toBe(11);
+			body.articles.forEach((article) => {
 				expect(article.topic).toBe("mitch");
 			});
 
@@ -214,8 +124,8 @@ describe("/api/articles", () => {
 			status = response.status;
 			body = response.body;
 			expect(status).toBe(200);
-			expect(body.length).toBe(1);
-			body.forEach((article) => {
+			expect(body.articles.length).toBe(1);
+			body.articles.forEach((article) => {
 				expect(article.topic).toBe("cats");
 			});
 		});
@@ -226,10 +136,10 @@ describe("/api/articles", () => {
 			expect(status).toBe(400);
 			expect(body.message).toBe("Bad Request: Invalid input");
 		});
-		test("200 status and returns 'No articles found' message, if given valid topic which has no articles", async () => {
+		test("200 status and returns an empty array, if given valid topic which has no articles", async () => {
 			const request = await supertest(app).get("/api/articles?topic=paper");
 			expect(request.status).toBe(200);
-			expect(request.body.message).toBe("No articles found");
+			expect(request.body.articles).toEqual([]);
 		});
 	});
 });
@@ -239,7 +149,7 @@ describe("/api/articles/:article_id", () => {
 		test("200 status and returns the specified article object", async () => {
 			const { status, body } = await supertest(app).get("/api/articles/1");
 			expect(status).toBe(200);
-			expect(body).toMatchObject({
+			expect(body.article).toMatchObject({
 				article_id: 1,
 				title: "Living in the shadow of a great man",
 				body: "I find this existence challenging",
@@ -270,7 +180,7 @@ describe("/api/articles/:article_id", () => {
 				.patch("/api/articles/1")
 				.send(patchObj);
 			expect(status).toBe(200);
-			expect(body).toEqual(
+			expect(body.article).toEqual(
 				expect.objectContaining({
 					article_id: 1,
 					title: "Living in the shadow of a great man",
@@ -331,7 +241,7 @@ describe("/api/articles/:article_id/comments", () => {
 				"/api/articles/1/comments"
 			);
 			expect(status).toBe(200);
-			body.forEach((comment) => {
+			body.comments.forEach((comment) => {
 				expect(comment).toMatchObject({
 					comment_id: expect.any(Number),
 					votes: expect.any(Number),
@@ -361,7 +271,7 @@ describe("/api/articles/:article_id/comments", () => {
 				"/api/articles/2/comments"
 			);
 			expect(status).toBe(200);
-			expect(body.message).toBe("No comments found for this article");
+			expect(body.comments).toEqual([]);
 		});
 	});
 	describe("POST", () => {
@@ -374,7 +284,7 @@ describe("/api/articles/:article_id/comments", () => {
 				.post("/api/articles/1/comments")
 				.send(comment);
 			expect(status).toBe(200);
-			expect(body).toMatchObject({
+			expect(body.comment).toMatchObject({
 				comment_id: 19,
 				author: "rogersop",
 				article_id: 1,
