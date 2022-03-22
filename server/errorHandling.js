@@ -8,6 +8,10 @@ exports.handleCustomErrors = (error, request, response, next) => {
 exports.handlePsqlErrors = (error, request, response, next) => {
 	if (error.code === "22P02") {
 		response.status(400).send({ message: "Bad Request: Invalid input" });
+	} else if (error.code === "23503") {
+		response
+			.status(404)
+			.send({ message: "Bad Request: Username does not exist" });
 	} else {
 		next(error);
 	}

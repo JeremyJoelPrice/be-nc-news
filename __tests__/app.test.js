@@ -362,7 +362,7 @@ describe("/api/articles/:article_id/comments", () => {
 			expect(status).toBe(400);
 			expect(body.message).toBe("Bad Request: Invalid input");
 		});
-		test("400 status and returns 'Bad Request: Invalid input' message, if given a comment with invalid datatypesa s values", async () => {
+		test("400 status and returns 'Bad Request: Invalid input' message, if given a comment with invalid datatypes as values", async () => {
 			const comment = {
 				username: 7,
 				body: true
@@ -372,6 +372,17 @@ describe("/api/articles/:article_id/comments", () => {
 				.send(comment);
 			expect(status).toBe(400);
 			expect(body.message).toBe("Bad Request: Invalid input");
+		});
+		test.only("404 status and returns 'Bad Request: Username does not exist' message, if given an valid, unused username", async () => {
+			const comment = {
+				username: "not a username",
+				body: "this is my comment"
+			};
+			const { status, body } = await supertest(app)
+				.post("/api/articles/1/comments")
+				.send(comment);
+			expect(status).toBe(404);
+			expect(body.message).toBe("Bad Request: Username does not exist");
 		});
 	});
 });
