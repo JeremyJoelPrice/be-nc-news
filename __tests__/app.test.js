@@ -266,7 +266,7 @@ describe("/api/articles/:article_id/comments", () => {
 			expect(status).toBe(400);
 			expect(body.message).toBe("Bad Request: Invalid input");
 		});
-		test("200 status and returns 'No comments found for this article' message, if given article has no comments", async () => {
+		test("200 status and returns an empty array, if given article has no comments", async () => {
 			const { status, body } = await supertest(app).get(
 				"/api/articles/2/comments"
 			);
