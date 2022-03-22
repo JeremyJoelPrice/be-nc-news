@@ -19,7 +19,7 @@ exports.postCommentByArticleId = async (request, response, next) => {
 			request.params.article_id,
 			request.body
 		);
-		response.status(200).send({ comment });
+		response.status(201).send({ comment });
 	} catch (error) {
 		next(error);
 	}

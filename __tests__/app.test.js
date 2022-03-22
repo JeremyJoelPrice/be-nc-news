@@ -275,7 +275,7 @@ describe("/api/articles/:article_id/comments", () => {
 		});
 	});
 	describe("POST", () => {
-		test("200 status and returns posted comment", async () => {
+		test("201 status and returns posted comment", async () => {
 			const comment = {
 				username: "rogersop",
 				body: "this is my comment"
@@ -283,7 +283,7 @@ describe("/api/articles/:article_id/comments", () => {
 			const { status, body } = await supertest(app)
 				.post("/api/articles/1/comments")
 				.send(comment);
-			expect(status).toBe(200);
+			expect(status).toBe(201);
 			expect(body.comment).toMatchObject({
 				comment_id: 19,
 				author: "rogersop",
@@ -373,7 +373,7 @@ describe("/api/articles/:article_id/comments", () => {
 			expect(status).toBe(400);
 			expect(body.message).toBe("Bad Request: Invalid input");
 		});
-		test.only("404 status and returns 'Bad Request: Username does not exist' message, if given an valid, unused username", async () => {
+		test("404 status and returns 'Bad Request: Username does not exist' message, if given an valid, unused username", async () => {
 			const comment = {
 				username: "not a username",
 				body: "this is my comment"
