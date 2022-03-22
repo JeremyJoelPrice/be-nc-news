@@ -8,7 +8,7 @@ exports.readArticles = async ({
 	topic
 }) => {
 	const validSortFields = [
-		"authro",
+		"author",
 		"title",
 		"article_id",
 		"topic",
@@ -28,40 +28,36 @@ exports.readArticles = async ({
 		throw { status: 400, message: "Bad Request: Invalid input" };
 	}
 
-	// Get all articles, in the given order
-	const sql = format(
+	// Prep first part of query
+	let sql = format(
 		`
-		SELECT * FROM articles
+		SELECT articles.title, articles.article_id, articles.topic, articles.author, articles.created_at, articles.votes, COUNT(comment_id) AS comment_count
+		FROM articles
+		LEFT JOIN comments ON comments.article_id = articles.article_id
+		`
+	);
+
+	// If topic has a value, include it in the query
+	if (topic) {
+		const isValid = await isExtantTopic(topic);
+		if (isValid) {
+			sql += format(`WHERE topic = '%s'`, topic);
+		} else {
+			throw { status: 404, message: "Bad Request: Invalid input" };
+		}
+	}
+	// Prep final part of query
+	sql += format(
+		`
+		GROUP BY articles.article_id
 		ORDER BY %s %s
-		`,
+		;`,
 		sort_by,
 		sort_direction
 	);
-	let articles = (await database.query(sql)).rows;
 
-	// Get all comments
-	const comments = (
-		await database.query(`
-		SELECT * FROM comments;
-		`)
-	).rows;
-
-	// Add comment_count to each article
-	articles.forEach((article) => {
-		const articleComments = comments.filter(
-			(comment) => comment.article_id === article.article_id
-		);
-		article.comment_count = articleComments.length;
-		delete article.body;
-	});
-
-	// Check topic has a value, and that value exists in the database
-	if (topic) {
-		if (!(await isExtantTopic(topic))) {
-			throw { status: 400, message: "Bad Request: Invalid input" };
-		}
-		articles = articles.filter((article) => article.topic === topic);
-	}
+	// Executre query
+	const articles = (await database.query(sql)).rows;
 
 	return articles;
 };
@@ -70,28 +66,20 @@ exports.readArticleById = async (article_id) => {
 	await vetArticleId(article_id);
 
 	// Get search results for article
-	const article = (
-		await database.query(
-			`
-			SELECT * FROM articles
-			WHERE article_id = $1;
+	const sql = format(
+		`
+			SELECT articles.article_id, articles.body, articles.created_at, articles.votes, articles.title, articles.author, articles.topic, COUNT(comment_id) AS comment_count
+			FROM articles
+			LEFT JOIN comments ON comments.article_id = articles.article_id
+			WHERE articles.article_id = %s
+			GROUP BY articles.article_id
+			;
 			`,
-			[article_id]
-		)
-	).rows[0];
+		article_id
+	);
+	const response = await database.query(sql);
 
-	// Add comment count to article
-	article.comment_count = (
-		await database.query(
-			`
-			SELECT * FROM comments
-			WHERE article_id = $1;
-			`,
-			[article_id]
-		)
-	).rows.length;
-
-	return article;
+	return response.rows[0];
 };
 
 exports.updateArticleById = async (article_id, requestBody) => {

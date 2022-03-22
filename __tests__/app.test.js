@@ -47,7 +47,7 @@ describe("/api/articles", () => {
 					topic: expect.any(String),
 					created_at: expect.any(String),
 					votes: expect.any(Number),
-					comment_count: expect.any(Number)
+					comment_count: expect.any(String)
 				});
 			});
 		});
@@ -129,11 +129,11 @@ describe("/api/articles", () => {
 				expect(article.topic).toBe("cats");
 			});
 		});
-		test("400 status and returns 'Bad Request: Invalid input' message, if given invalid topic", async () => {
+		test("404 status and returns 'Bad Request: Invalid input' message, if given invalid topic", async () => {
 			const { status, body } = await supertest(app).get(
 				"/api/articles?topic=banana"
 			);
-			expect(status).toBe(400);
+			expect(status).toBe(404);
 			expect(body.message).toBe("Bad Request: Invalid input");
 		});
 		test("200 status and returns an empty array, if given valid topic which has no articles", async () => {
@@ -157,7 +157,7 @@ describe("/api/articles/:article_id", () => {
 				topic: "mitch",
 				author: "butter_bridge",
 				created_at: "2020-07-09T21:11:00.000Z",
-				comment_count: 11
+				comment_count: "11"
 			});
 		});
 		test("404 status and returns 'Article not found' message, if given an unused valid article_id", async () => {
