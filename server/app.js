@@ -9,6 +9,7 @@ const {
 	deleteCommentById
 } = require("./controllers/index.js");
 const {
+	handle404s,
 	handleCustomErrors,
 	handlePsqlErrors,
 	handleServerErrors
@@ -33,7 +34,7 @@ app.post("/api/articles/:article_id/comments", postCommentByArticleId);
 
 app.delete("/api/comments/:comment_id", deleteCommentById);
 
-// app.all("/*", handle404s);
+app.all("/*", handle404s);
 
 app.use(handleCustomErrors);
 app.use(handlePsqlErrors);

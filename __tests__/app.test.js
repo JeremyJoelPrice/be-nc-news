@@ -412,3 +412,11 @@ describe("/api/comments/:comment_id", () => {
 		});
 	});
 });
+
+describe("invalid endpoints", () => {
+	test("404 status and 'Invalid endpoint' message when accessing an invalid endpoint", async () => {
+		let { status, body } = await supertest(app).get("/notanendpoint");
+		expect(status).toBe(404);
+		expect(body.message).toBe("Not Found: Invalid endpoint");
+	});
+});
