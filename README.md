@@ -85,7 +85,7 @@ npm run seed
 To run the server locally
 
 ```
-npm run dev
+npm start
 ```
 
 To run all tests
