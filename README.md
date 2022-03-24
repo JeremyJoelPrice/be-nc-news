@@ -41,7 +41,7 @@ whether we are running the app in a test, development, or production
 environment.
 
 `Dotenv` is a zero-dependency module that loads environment variables from a
-`.env` file into `process.env`, a Node global object.
+`.env` file into `process.env`, a Node global object. Normally it would contain confidential information but, for this demo application, you can follow these instructions to create the files we need.
 
 For `Dotenv` to work correctly, we must create two files with the following
 content:
