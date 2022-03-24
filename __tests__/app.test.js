@@ -23,6 +23,7 @@ describe("/api/topics", () => {
 			const { status, body } = await supertest(app).get("/api/topics");
 			expect(status).toBe(200);
 			expect(Array.isArray(body.topics)).toBe(true);
+			expect(body.topics.length).toBeGreaterThan(0);
 			body.topics.forEach((topic) => {
 				expect(topic).toMatchObject({
 					slug: expect.any(String),
@@ -39,6 +40,7 @@ describe("/api/articles", () => {
 			const { status, body } = await supertest(app).get("/api/articles");
 			expect(status).toBe(200);
 			expect(Array.isArray(body.articles)).toBe(true);
+			expect(body.articles.length).toBeGreaterThan(0);
 			body.articles.forEach((article) => {
 				expect(article).toMatchObject({
 					author: expect.any(String),
@@ -125,6 +127,7 @@ describe("/api/articles", () => {
 			body = response.body;
 			expect(status).toBe(200);
 			expect(body.articles.length).toBe(1);
+			expect(body.articles.length).toBeGreaterThan(0);
 			body.articles.forEach((article) => {
 				expect(article.topic).toBe("cats");
 			});
@@ -241,6 +244,7 @@ describe("/api/articles/:article_id/comments", () => {
 				"/api/articles/1/comments"
 			);
 			expect(status).toBe(200);
+			expect(body.comments.length).toBeGreaterThan(0);
 			body.comments.forEach((comment) => {
 				expect(comment).toMatchObject({
 					comment_id: expect.any(Number),
