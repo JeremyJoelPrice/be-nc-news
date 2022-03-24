@@ -6,6 +6,8 @@ Node.js, and the database is PSQL.
 
 The hosted version is avaiable here: https://jeremy-nc-news.herokuapp.com/api
 
+To run this application locally, follow the setup instructions below.
+
 ---
 
 ## Setup
